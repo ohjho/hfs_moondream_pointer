@@ -1,6 +1,6 @@
 ---
 title: Moondream Pointer
-emoji: 🦀
+emoji: 🌕🌖🌗
 colorFrom: indigo
 colorTo: red
 sdk: gradio
@@ -11,3 +11,6 @@ short_description: inference for moondream2 point API
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+
+# Moondream Pointer
+HuggingFace Space inference for moondream2's [point API](https://moondream.ai/c/docs/advanced/api/point) using code example from the [official doc](https://huggingface.co/vikhyatk/moondream2)
