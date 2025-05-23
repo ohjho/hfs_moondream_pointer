@@ -1,2 +1,4 @@
-transformers==4.45.0
+transformers==4.44.0
 pydantic==2.10.6
+pyvips-binary==8.16.0
+pyvips==2.2.3
