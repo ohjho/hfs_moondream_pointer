@@ -22,7 +22,10 @@ def point(im: Image.Image, object_name: str):
 
 demo = gr.Interface(
     fn=point,
-    inputs=[gr.Image(label="Input Image"), gr.Textbox(label="Object to Detect")],
+    inputs=[
+        gr.Image(label="Input Image", type="pil"),
+        gr.Textbox(label="Object to Detect"),
+    ],
     outputs=gr.Textbox(label="Output Text"),
 )
 demo.launch()
