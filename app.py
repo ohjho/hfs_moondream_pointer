@@ -19,6 +19,16 @@ def load_model():
 def detect(
     im: Image.Image, object_name: str, mode: Literal["point", "object_detection"]
 ):
+    """
+    Open Vocabulary Detection using moondream2
+
+    Args:
+        im: Pillow Image
+        object_name: the object you would like to detect
+        mode: point or object_detection
+    Returns:
+        list: a list of bounding boxes (xyxy) or points (xy) coordinates that are normalized
+    """
     model = load_model()
     if mode == "point":
         return model.point(im, object_name)["points"]
@@ -35,4 +45,6 @@ demo = gr.Interface(
     ],
     outputs=gr.Textbox(label="Output Text"),
 )
-demo.launch(mcp_server=True)
+demo.launch(
+    mcp_server=True, app_kwargs={"docs_url": "/docs"}  # add FastAPI Swagger API Docs
+)
