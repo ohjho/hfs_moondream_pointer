@@ -43,7 +43,7 @@ demo = gr.Interface(
         gr.Textbox(label="Object to Detect"),
         gr.Dropdown(label="Mode", choices=["point", "object_detection"]),
     ],
-    outputs=gr.Textbox(label="Output Text"),
+    outputs=gr.JSON(label="Output Text"),
 )
 demo.launch(
     mcp_server=True, app_kwargs={"docs_url": "/docs"}  # add FastAPI Swagger API Docs
