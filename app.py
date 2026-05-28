@@ -30,7 +30,7 @@ def detect(
         mode: point, object_detection, or query
     Returns:
         For "point" / "object_detection": a list of points (xy) or bounding boxes (xyxy) with normalized coordinates.
-        For "query": a string answer to the question.
+        For "query": a dict {"answer": str} with the answer to the question.
     """
     model = load_model()
     if mode == "point":
@@ -38,7 +38,7 @@ def detect(
     elif mode == "object_detection":
         return model.detect(im, object_name)["objects"]
     elif mode == "query":
-        return model.query(im, object_name)["answer"]
+        return model.query(im, object_name)
 
 
 demo = gr.Interface(
