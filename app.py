@@ -5,7 +5,7 @@ from PIL import Image
 from typing import Literal
 
 
-@spaces.GPU
+@spaces.GPU(duration=30)
 def load_model():
     return AutoModelForCausalLM.from_pretrained(
         "vikhyatk/moondream2",
@@ -15,33 +15,41 @@ def load_model():
     )
 
 
-@spaces.GPU
+@spaces.GPU(duration=30)
 def detect(
-    im: Image.Image, object_name: str, mode: Literal["point", "object_detection"]
+    im: Image.Image,
+    object_name: str,
+    mode: Literal["point", "object_detection", "query"],
 ):
     """
-    Open Vocabulary Detection using moondream2
+    Open Vocabulary Detection and Visual Question Answering using moondream2
 
     Args:
         im: Pillow Image
-        object_name: the object you would like to detect
-        mode: point or object_detection
+        object_name: the object you would like to detect, or the question to ask when mode is "query"
+        mode: point, object_detection, or query
     Returns:
-        list: a list of bounding boxes (xyxy) or points (xy) coordinates that are normalized
+        For "point" / "object_detection": a list of points (xy) or bounding boxes (xyxy) with normalized coordinates.
+        For "query": a string answer to the question.
     """
     model = load_model()
     if mode == "point":
         return model.point(im, object_name)["points"]
     elif mode == "object_detection":
         return model.detect(im, object_name)["objects"]
+    elif mode == "query":
+        return model.query(im, object_name)["answer"]
 
 
 demo = gr.Interface(
     fn=detect,
     inputs=[
         gr.Image(label="Input Image", type="pil"),
-        gr.Textbox(label="Object to Detect"),
-        gr.Dropdown(label="Mode", choices=["point", "object_detection"]),
+        gr.Textbox(
+            label="Object / Question",
+            info="object to detector (for points / object_detection) or question for a query",
+        ),
+        gr.Dropdown(label="Mode", choices=["point", "object_detection", "query"]),
     ],
     outputs=gr.JSON(label="Output JSON"),
 )
