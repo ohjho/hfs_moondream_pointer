@@ -36,6 +36,8 @@ def detect(
     im: Image.Image,
     object_name: str,
     mode: Literal["point", "object_detection", "query"],
+    reasoning: bool = False,
+    settings: dict = {"temperature": 0.0, "top-p": 0.95, "max_tokens": 512},
 ):
     """
     Open Vocabulary Detection and Visual Question Answering using moondream2
@@ -52,13 +54,15 @@ def detect(
     if mode == "point":
         return model.point(im, object_name)["points"]
     elif mode == "object_detection":
-        return model.detect(im, object_name)["objects"]
+        return model.detect(im, object_name, settings=settings)["objects"]
     elif mode == "query":
-        return model.query(im, object_name)
+        return model.query(im, object_name, reasoning=reasoning, settings=settings)
 
 
 demo = gr.Interface(
     fn=detect,
+    title="moondream-pointer",
+    description="using [moondream3-preview](https://huggingface.co/moondream/moondream3-preview) for object grounding",
     inputs=[
         gr.Image(label="Input Image", type="pil"),
         gr.Textbox(
