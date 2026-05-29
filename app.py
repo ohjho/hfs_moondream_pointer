@@ -7,12 +7,26 @@ from typing import Literal
 
 @spaces.GPU(duration=30)
 def load_model():
-    return AutoModelForCausalLM.from_pretrained(
-        "vikhyatk/moondream2",
-        revision="2025-04-14",
+    # moondream2
+    # return AutoModelForCausalLM.from_pretrained(
+    #     "vikhyatk/moondream2",
+    #     revision="2025-04-14",
+    #     trust_remote_code=True,
+    #     device_map={"": "cuda"},
+    # )
+
+    # moondream3-preview
+    moondream = AutoModelForCausalLM.from_pretrained(
+        "moondream/moondream3-preview",
         trust_remote_code=True,
+        dtype=torch.bfloat16,
         device_map={"": "cuda"},
     )
+    moondream.compile()
+    return moondream
+
+
+_MODEL = load_model
 
 
 @spaces.GPU(duration=30)
@@ -32,7 +46,7 @@ def detect(
         For "point" / "object_detection": a list of points (xy) or bounding boxes (xyxy) with normalized coordinates.
         For "query": a dict {"answer": str} with the answer to the question.
     """
-    model = load_model()
+    model = _MODEL  # load_model()
     if mode == "point":
         return model.point(im, object_name)["points"]
     elif mode == "object_detection":
