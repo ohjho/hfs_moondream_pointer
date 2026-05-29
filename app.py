@@ -26,7 +26,7 @@ def load_model():
     return moondream
 
 
-_MODEL = load_model
+_MODEL = load_model()
 
 
 @spaces.GPU(duration=30)
