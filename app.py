@@ -7,7 +7,7 @@ from typing import Literal
 
 @spaces.GPU(duration=30)
 def load_model():
-    moondream2
+    # moondream2
     return AutoModelForCausalLM.from_pretrained(
         "vikhyatk/moondream2",
         revision="2025-04-14",
