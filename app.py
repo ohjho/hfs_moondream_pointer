@@ -26,7 +26,9 @@ def load_model():
     # return moondream
 
 
-_MODEL = load_model()
+_MODEL = (
+    load_model()
+)  # calling spaces.GPU decorated functions outside ZeroGPU scope will cause a PickingError
 
 
 @spaces.GPU(duration=30)
