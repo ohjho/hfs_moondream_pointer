@@ -1,3 +1,4 @@
+import json
 import gradio as gr
 import spaces, torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -37,7 +38,7 @@ def detect(
     object_name: str,
     mode: Literal["point", "object_detection", "query"],
     reasoning: bool = False,
-    settings: dict = {"temperature": 0.0, "top-p": 0.95, "max_tokens": 512},
+    settings: dict = {"temperature": 0.0, "top_p": 0.95, "max_tokens": 512},
 ):
     """
     Open Vocabulary Detection and Visual Question Answering using moondream2
@@ -51,8 +52,10 @@ def detect(
         For "query": a dict {"answer": str} with the answer to the question.
     """
     model = _MODEL  # load_model()
+    if isinstance(settings, str):
+        settings = json.loads(settings)
     if mode == "point":
-        return model.point(im, object_name)["points"]
+        return model.point(im, object_name, settings=settings)["points"]
     elif mode == "object_detection":
         return model.detect(im, object_name, settings=settings)["objects"]
     elif mode == "query":
@@ -70,6 +73,16 @@ demo = gr.Interface(
             info="object to detector (for points / object_detection) or question for a query",
         ),
         gr.Dropdown(label="Mode", choices=["point", "object_detection", "query"]),
+        gr.Checkbox(
+            label="Reasoning",
+            value=False,
+            info="enable [chain-of-thought](https://huggingface.co/moondream/moondream3-preview#query) (query mode only)",
+        ),
+        gr.Textbox(
+            label="Settings (JSON)",
+            value='{"temperature": 0.0, "top_p": 0.95, "max_tokens": 512}',
+            info="query: temperature / top_p / max_tokens · point & object_detection: max_objects",
+        ),
     ],
     outputs=gr.JSON(label="Output JSON"),
 )
