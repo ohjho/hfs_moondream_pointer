@@ -5,7 +5,7 @@ from PIL import Image
 from typing import Literal
 
 
-@spaces.GPU(duration=60)
+@spaces.GPU(duration=30)
 def load_model():
     moondream2
     return AutoModelForCausalLM.from_pretrained(
