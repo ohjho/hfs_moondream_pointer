@@ -7,23 +7,23 @@ from typing import Literal
 
 @spaces.GPU(duration=60)
 def load_model():
-    # moondream2
-    # return AutoModelForCausalLM.from_pretrained(
-    #     "vikhyatk/moondream2",
-    #     revision="2025-04-14",
-    #     trust_remote_code=True,
-    #     device_map={"": "cuda"},
-    # )
-
-    # moondream3-preview
-    moondream = AutoModelForCausalLM.from_pretrained(
-        "moondream/moondream3-preview",
+    moondream2
+    return AutoModelForCausalLM.from_pretrained(
+        "vikhyatk/moondream2",
+        revision="2025-04-14",
         trust_remote_code=True,
-        dtype=torch.bfloat16,
         device_map={"": "cuda"},
     )
-    moondream.compile()
-    return moondream
+
+    # moondream3-preview
+    # moondream = AutoModelForCausalLM.from_pretrained(
+    #     "moondream/moondream3-preview",
+    #     trust_remote_code=True,
+    #     dtype=torch.bfloat16,
+    #     device_map={"": "cuda"},
+    # )
+    # moondream.compile()
+    # return moondream
 
 
 _MODEL = load_model()
