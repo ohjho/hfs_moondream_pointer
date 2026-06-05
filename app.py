@@ -58,22 +58,28 @@ def detect(
         For "point" / "object_detection": a list of points (xy) or bounding boxes (xyxy) with normalized coordinates.
         For "query": a dict {"answer": str} with the answer to the question.
     """
-    # model = _MODEL  # load_model()
+
     model = _MODEL_ZOO[model_name]
+    is_v2 = model_name == "moondream2"
     if isinstance(settings, str):
         settings = json.loads(settings)
+
+    inf_params = {} if is_v2 else {"settings": settings}
+    if not is_v2 and mode == "query":
+        inf_params["reasoning"] = reasoning
+
     if mode == "point":
-        return model.point(im, object_name, settings=settings)["points"]
+        return model.point(im, object_name, **inf_params)["points"]
     elif mode == "object_detection":
-        return model.detect(im, object_name, settings=settings)["objects"]
+        return model.detect(im, object_name, **inf_params)["objects"]
     elif mode == "query":
-        return model.query(im, object_name, reasoning=reasoning, settings=settings)
+        return model.query(im, object_name, **inf_params)
 
 
 demo = gr.Interface(
     fn=detect,
     title="moondream-pointer",
-    description="using [moondream3-preview](https://huggingface.co/moondream/moondream3-preview) for object grounding",
+    description="using [moondream3-preview](https://huggingface.co/moondream/moondream3-preview) and [moondream2](https://huggingface.co/vikhyatk/moondream2) for object grounding",
     inputs=[
         gr.Image(label="Input Image", type="pil"),
         gr.Textbox(
