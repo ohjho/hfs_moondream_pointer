@@ -27,9 +27,15 @@ def load_model():
     return moondream
 
 
-_MODEL = (
-    load_model()
-)  # calling spaces.GPU decorated functions outside ZeroGPU scope will cause a PickingError
+_MODEL_ZOO = {
+    "moondream3-preview": load_model(),  # calling spaces.GPU decorated functions outside ZeroGPU scope will cause a PickingError
+    "moondream2": AutoModelForCausalLM.from_pretrained(
+        "vikhyatk/moondream2",
+        revision="2025-04-14",
+        trust_remote_code=True,
+        device_map={"": "cuda"},
+    ),
+}
 
 
 @spaces.GPU(duration=30)
@@ -37,6 +43,7 @@ def detect(
     im: Image.Image,
     object_name: str,
     mode: Literal["point", "object_detection", "query"],
+    model_name: Literal["moondream2", "moondream3-preview"] = "moondream3-preview",
     reasoning: bool = False,
     settings: dict = {"temperature": 0.0, "top_p": 0.95, "max_tokens": 512},
 ):
@@ -51,7 +58,8 @@ def detect(
         For "point" / "object_detection": a list of points (xy) or bounding boxes (xyxy) with normalized coordinates.
         For "query": a dict {"answer": str} with the answer to the question.
     """
-    model = _MODEL  # load_model()
+    # model = _MODEL  # load_model()
+    model = _MODEL_ZOO[model_name]
     if isinstance(settings, str):
         settings = json.loads(settings)
     if mode == "point":
@@ -73,6 +81,7 @@ demo = gr.Interface(
             info="object to detector (for points / object_detection) or question for a query",
         ),
         gr.Dropdown(label="Mode", choices=["point", "object_detection", "query"]),
+        gr.Dropdown(label="Model Variant", choices=list(_MODEL_ZOO.keys())),
         gr.Checkbox(
             label="Reasoning",
             value=False,
