@@ -31,7 +31,7 @@ _MODEL_ZOO = {
     "moondream3-preview": load_model(),  # calling spaces.GPU decorated functions outside ZeroGPU scope will cause a PickingError
     "moondream2": AutoModelForCausalLM.from_pretrained(
         "vikhyatk/moondream2",
-        revision="2025-04-14",
+        revision="2025-06-21",
         trust_remote_code=True,
         device_map={"": "cuda"},
     ),
