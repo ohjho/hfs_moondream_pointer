@@ -1,4 +1,4 @@
-transformers>=4.56.0
+transformers>=4.56.0,<5
 pydantic
 pyvips-binary==8.16.0
 pyvips==2.2.3
