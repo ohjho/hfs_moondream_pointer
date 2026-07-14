@@ -46,17 +46,16 @@ def detect(
     model_name: Literal["moondream2", "moondream3-preview"] = "moondream3-preview",
     reasoning: bool = False,
     settings: dict = {"temperature": 0.0, "top_p": 0.95, "max_tokens": 512},
-):
-    """
-    Open Vocabulary Detection and Visual Question Answering using moondream2
+) -> list[dict] | dict:
+    """Open-vocabulary object localization and visual question answering with the Moondream vision-language model. The shape of the returned JSON depends on the "mode" argument. In "point" mode it returns a JSON list with one entry per located instance of "object_name"; each entry is an object {"x": float, "y": float} giving that instance's center as coordinates NORMALIZED to 0.0-1.0 of the input image (x is fraction of width from the left edge, y is fraction of height from the top edge). In "object_detection" mode it returns a JSON list with one entry per located instance; each entry is a bounding box {"x_min": float, "y_min": float, "x_max": float, "y_max": float} where all four values are NORMALIZED to 0.0-1.0 of the ORIGINAL input image ("x_min"/"y_min" is the top-left corner, "x_max"/"y_max" is the bottom-right corner) -- this is the albumentations "albumentations" bounding-box format (normalized [x_min, y_min, x_max, y_max]), documented at https://albumentations.ai/docs/3-basic-usage/bounding-boxes-augmentations/#bounding-box-formats -- values are NOT absolute pixels and the box is NOT [x, y, width, height]. In "query" mode it returns a JSON object {"answer": string} answering "object_name" as a natural-language question about the image.
 
     Args:
-        im: Pillow Image
-        object_name: the object you would like to detect, or the question to ask when mode is "query"
-        mode: point, object_detection, or query
-    Returns:
-        For "point" / "object_detection": a list of points (xy) or bounding boxes (xyxy) with normalized coordinates.
-        For "query": a dict {"answer": str} with the answer to the question.
+        im: The RGB image to run detection or answer a question about.
+        object_name: In "point"/"object_detection" mode, the open-vocabulary name of the object to locate (e.g. "person", "red car"); in "query" mode, the natural-language question to ask about the image.
+        mode: "point" returns normalized center points, "object_detection" returns normalized bounding boxes, "query" returns a text answer.
+        model_name: Which Moondream checkpoint to run: "moondream3-preview" (default, more capable) or "moondream2".
+        reasoning: Enable chain-of-thought reasoning; only applies to "query" mode on the moondream3-preview model and is ignored otherwise.
+        settings: Inference parameters as a JSON object; for "query" mode use "temperature"/"top_p"/"max_tokens", for "point"/"object_detection" use "max_objects"; ignored for the moondream2 model.
     """
 
     model = _MODEL_ZOO[model_name]
