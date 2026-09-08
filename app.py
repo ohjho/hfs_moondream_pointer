@@ -1,6 +1,7 @@
-import json
+import json, tempfile
 import gradio as gr
 import spaces, torch
+from gradio_client import Client, handle_file
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from PIL import Image
 from typing import Literal
@@ -75,6 +76,21 @@ def detect(
         return model.query(im, object_name, **inf_params)
 
 
+def annotate(im, result, mode):
+    if not isinstance(result, list):
+        return None  # query mode / cleared output
+    boxes = [
+        {"boundingBox": [r["x_min"], r["y_min"], r["x_max"], r["y_max"]]}
+        if mode == "object_detection"
+        else {"boundingBox": [r["x"] - 0.01, r["y"] - 0.01, r["x"] + 0.01, r["y"] + 0.01]}
+        for r in result
+    ]
+    im.save(path := tempfile.NamedTemporaryFile(suffix=".png", delete=False).name)
+    return Client("GF-John/pilbox").predict(
+        handle_file(path), json.dumps(boxes), "albumentations", api_name="/annotate"
+    )
+
+
 demo = gr.Interface(
     fn=detect,
     title="moondream-pointer",
@@ -100,6 +116,13 @@ demo = gr.Interface(
     ],
     outputs=gr.JSON(label="Output JSON"),
 )
+with demo:
+    demo.output_components[0].change(
+        annotate,
+        [demo.input_components[0], demo.output_components[0], demo.input_components[2]],
+        gr.Image(label="Annotated Image"),
+        api_name=False,
+    )
 demo.launch(
     mcp_server=True, app_kwargs={"docs_url": "/docs"}  # add FastAPI Swagger API Docs
 )
