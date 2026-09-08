@@ -80,10 +80,13 @@ def annotate(im, result, mode):
     if not isinstance(result, list):
         return None  # query mode / cleared output
     boxes = [
-        {"boundingBox": [r["x_min"], r["y_min"], r["x_max"], r["y_max"]]}
-        if mode == "object_detection"
-        else {"boundingBox": [r["x"] - 0.01, r["y"] - 0.01, r["x"] + 0.01, r["y"] + 0.01]}
-        for r in result
+        {
+            "object_id": i,  # pilbox's default label_key / color_key
+            "boundingBox": [r["x_min"], r["y_min"], r["x_max"], r["y_max"]]
+            if mode == "object_detection"
+            else [r["x"] - 0.01, r["y"] - 0.01, r["x"] + 0.01, r["y"] + 0.01],
+        }
+        for i, r in enumerate(result)
     ]
     im.save(path := tempfile.NamedTemporaryFile(suffix=".png", delete=False).name)
     return Client("GF-John/pilbox").predict(
@@ -116,7 +119,7 @@ demo = gr.Interface(
     ],
     outputs=gr.JSON(label="Output JSON"),
 )
-with demo:
+with demo, demo.output_components[0].parent:  # render inside the output column
     demo.output_components[0].change(
         annotate,
         [demo.input_components[0], demo.output_components[0], demo.input_components[2]],
