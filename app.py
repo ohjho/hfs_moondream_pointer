@@ -118,6 +118,8 @@ demo = gr.Interface(
         ),
     ],
     outputs=gr.JSON(label="Output JSON"),
+    # ZeroGPU: each call forks its own worker/GPU (no shared VRAM); higher just waits on the pool and burns quota faster
+    concurrency_limit=2,
 )
 with demo, demo.output_components[0].parent:  # render inside the output column
     demo.output_components[0].change(
@@ -125,7 +127,10 @@ with demo, demo.output_components[0].parent:  # render inside the output column
         [demo.input_components[0], demo.output_components[0], demo.input_components[2]],
         gr.Image(label="Annotated Image"),
         api_name=False,
+        # network-bound call to the pilbox Space: requests overlap; at 1 this would choke after every detection
+        concurrency_limit=4,
     )
+demo.queue(max_size=12)  # ZeroGPU forces max_size=1 otherwise -> 2nd waiter gets HTTP 503 "Queue is full"; ~2x sum of limits
 demo.launch(
     mcp_server=True, app_kwargs={"docs_url": "/docs"}  # add FastAPI Swagger API Docs
 )
