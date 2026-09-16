@@ -4,7 +4,7 @@ emoji: 🌕🌖🌗
 colorFrom: indigo
 colorTo: red
 sdk: gradio
-sdk_version: 5.31.0
+sdk_version: 5.34.2
 app_file: app.py
 pinned: false
 short_description: inference for moondream2 point API
